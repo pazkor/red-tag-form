@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RED TAG Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      font-weight: 600;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    header img {
+      height: 50px;
+    }
+    h1 {
+      margin: 0 auto;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 1.1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-weight: 600;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #previewContainer {
+      margin-top: 30px;
+      text-align: center;
+    }
+    #previewContainer img {
+      max-width: 100%;
+      max-height: 400px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    @media print {
+      button {
+        display: none;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+      body {
+        zoom: 0.65;
+        font-weight: 700;
+      }
+      input, select, textarea {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Fabric Logo">
+    <h1>RED TAG Form</h1>
+  </header>
+  <form>
+    <div class="form-group">
+      <label for="itemType">Item Type</label>
+      <select id="itemType" name="itemType">
+        <option value="spare part">Spare Part</option>
+        <option value="not spare">Not Spare</option>
+        <option value="removed during fco">Removed During FCO</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="partNumber">Part Number</label>
+      <input type="text" id="partNumber" name="partNumber">
+    </div>
+    <div class="form-group">
+      <label for="removalDate">Removal Date</label>
+      <input type="date" id="removalDate" name="removalDate">
+    </div>
+    <div class="form-group">
+      <label for="removedFrom">Removed From (Asset SN)</label>
+      <input type="text" id="removedFrom" name="removedFrom">
+    </div>
+    <div class="form-group">
+      <label for="taggedBy">Tagged By</label>
+      <select id="taggedBy" name="taggedBy">
+        <option value="Hernan">Hernan</option>
+        <option value="Paz">Paz</option>
+        <option value="Raz">Raz</option>
+        <option value="Tzahi">Tzahi</option>
+        <option value="Nimrod">Nimrod</option>
+        <option value="Nis">Nis</option>
+        <option value="Tomer R">Tomer R</option>
+        <option value="Michael">Michael</option>
+        <option value="Tamir">Tamir</option>
+        <option value="Ben">Ben</option>
+        <option value="Tomer B.I">Tomer B.I</option>
+        <option value="Dagan">Dagan</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="mfc">MFC</label>
+      <select id="mfc" name="mfc">
+        <option value="mfc1">MFC1</option>
+        <option value="Emk">Emk</option>
+        <option value="bs">BS</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="serviceCallId">Service Call ID</label>
+      <input type="text" id="serviceCallId" name="serviceCallId">
+    </div>
+    <div class="form-group">
+      <label for="reason">Reason of Remove</label>
+      <select id="reason" name="reason">
+        <option value="Defected">Defected</option>
+        <option value="Scrap">Scrap</option>
+        <option value="required for R&D">Required for R&D</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="comments">Comments</label>
+      <textarea id="comments" name="comments"></textarea>
+    </div>
+    <div class="form-group">
+      <label for="imageUpload">Attach Image (Camera or File)</label>
+      <input type="file" id="imageUpload" name="imageUpload" accept="image/*" capture="environment">
+    </div>
+    <div id="previewContainer"></div>
+    <button type="button" onclick="window.print()">Print Form</button>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('removalDate').value = today;
+
+      const imageInput = document.getElementById('imageUpload');
+      const previewContainer = document.getElementById('previewContainer');
+
+      imageInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            previewContainer.innerHTML = `<h3>Attached Image:</h3><img src="${e.target.result}" alt="Uploaded Image">`;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          previewContainer.innerHTML = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
