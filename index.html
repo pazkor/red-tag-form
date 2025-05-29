@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>RED TAG Form</title>
+  <!-- html2canvas + jsPDF libs for taking screenshot and make pdf -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -100,6 +101,7 @@
       <h1>RED TAG Form</h1>
     </header>
     <form id="formContainer">
+      <!-- each field for the form below-->
       <div class="form-group">
         <label for="itemType">Item Type</label>
         <select id="itemType" name="itemType">
@@ -148,6 +150,7 @@
         <label for="comments">Comments</label>
         <textarea id="comments" name="comments"></textarea>
       </div>
+      <!-- image attach options two btns diff input fields -->
       <div class="form-group">
         <label>Attach Image</label>
         <button type="button" onclick="document.getElementById('fileInput').click()">Choose File</button>
@@ -163,37 +166,36 @@
     <button type="button" id="savePdfBtn">📄 Save as PDF</button>
   </div>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', () => {
+      // auto fill todays date
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('removalDate').value = today;
 
+      // file and cam refs
       const fileInput = document.getElementById('fileInput');
       const cameraInput = document.getElementById('cameraInput');
       const previewContainer = document.getElementById('previewContainer');
       let uploadedImage = null;
 
-      function handleImageUpload(input) {
+      // show uploaded image in page
+      function previewImage(input) {
         const file = input.files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = function (e) {
+          reader.onload = e => {
             uploadedImage = e.target.result;
-            const imgHTML = `<h3>Attached Image:</h3><img id="uploadedImg" src="${uploadedImage}" alt="Uploaded Image">`;
-            previewContainer.innerHTML = imgHTML;
+            previewContainer.innerHTML = `<h3>Attached Image:</h3><img id="uploadedImg" src="${uploadedImage}" alt="Uploaded Image">`;
           };
           reader.readAsDataURL(file);
         }
       }
 
-      fileInput.addEventListener('change', function () {
-        handleImageUpload(this);
-      });
+      // change listeners for file and cam
+      fileInput.addEventListener('change', () => previewImage(fileInput));
+      cameraInput.addEventListener('change', () => previewImage(cameraInput));
 
-      cameraInput.addEventListener('change', function () {
-        handleImageUpload(this);
-      });
-
-      document.getElementById('savePdfBtn').addEventListener('click', function () {
+      // generate pdf from current form view
+      document.getElementById('savePdfBtn').addEventListener('click', () => {
         const wrapper = document.getElementById('exportWrapper');
         html2canvas(wrapper, {
           scale: 2,
@@ -204,18 +206,24 @@
           const imgData = canvas.toDataURL('image/jpeg', 1.0);
           const { jsPDF } = window.jspdf;
           const pdf = new jsPDF('p', 'mm', 'a4');
+
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
+
           const imgProps = pdf.getImageProperties(imgData);
           const ratio = imgProps.width / imgProps.height;
+
           let pdfWidth = pageWidth;
           let pdfHeight = pageWidth / ratio;
+
           if (pdfHeight > pageHeight) {
             pdfHeight = pageHeight;
             pdfWidth = pageHeight * ratio;
           }
+
           const x = (pageWidth - pdfWidth) / 2;
           const y = 0;
+
           pdf.addImage(imgData, 'JPEG', x, y, pdfWidth, pdfHeight);
           pdf.save('red_tag_form.pdf');
         });
