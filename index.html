@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RED TAG Form</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -176,36 +177,44 @@
 
       const imageInput = document.getElementById('imageUpload');
       const previewContainer = document.getElementById('previewContainer');
+      let uploadedImage = null;
 
       imageInput.addEventListener('change', function () {
         const file = this.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function (e) {
-            const imgHTML = `<h3>Attached Image:</h3><img id="uploadedImg" src="${e.target.result}" alt="Uploaded Image">`;
+            uploadedImage = e.target.result;
+            const imgHTML = `<h3>Attached Image:</h3><img id="uploadedImg" src="${uploadedImage}" alt="Uploaded Image">`;
             previewContainer.innerHTML = imgHTML;
           };
           reader.readAsDataURL(file);
         } else {
           previewContainer.innerHTML = '';
+          uploadedImage = null;
         }
       });
 
       document.getElementById('savePdfBtn').addEventListener('click', function () {
-        const element = document.getElementById('exportWrapper');
-        const opt = {
-          margin: 0.4,
-          filename: 'red_tag_form.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 3,
-            useCORS: true,
-            allowTaint: false
-          },
-          jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
+        const wrapper = document.getElementById('exportWrapper');
 
-        html2pdf().set(opt).from(element).save();
+        html2canvas(wrapper, { scale: 2 }).then(canvas => {
+          const imgData = canvas.toDataURL('image/jpeg', 1.0);
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF('p', 'mm', 'a4');
+
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+
+          const imgProps = pdf.getImageProperties(imgData);
+          const ratio = imgProps.width / imgProps.height;
+
+          const pdfWidth = pageWidth;
+          const pdfHeight = pageWidth / ratio;
+
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+          pdf.save('red_tag_form.pdf');
+        });
       });
     });
   </script>
