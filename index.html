@@ -100,10 +100,59 @@
       <h1>RED TAG Form</h1>
     </header>
     <form id="formContainer">
-      <!-- Other form groups -->
       <div class="form-group">
-        <label for="imageUpload">Attach Image (Camera or File)</label>
-        <input type="file" id="imageUpload" name="imageUpload" accept="image/*" capture>
+        <label for="itemType">Item Type</label>
+        <select id="itemType" name="itemType">
+          <option value="spare part">Spare Part</option>
+          <option value="not spare">Not Spare</option>
+          <option value="removed during fco">Removed During FCO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="partNumber">Part Number</label>
+        <input type="text" id="partNumber" name="partNumber">
+      </div>
+      <div class="form-group">
+        <label for="removalDate">Removal Date</label>
+        <input type="date" id="removalDate" name="removalDate">
+      </div>
+      <div class="form-group">
+        <label for="removedFrom">Removed From (Asset SN)</label>
+        <input type="text" id="removedFrom" name="removedFrom">
+      </div>
+      <div class="form-group">
+        <label for="taggedBy">Tagged By</label>
+        <input type="text" id="taggedBy" name="taggedBy">
+      </div>
+      <div class="form-group">
+        <label for="mfc">MFC</label>
+        <select id="mfc" name="mfc">
+          <option value="mfc1">MFC1</option>
+          <option value="Emk">Emk</option>
+          <option value="bs">BS</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="serviceCallId">Service Call ID</label>
+        <input type="text" id="serviceCallId" name="serviceCallId">
+      </div>
+      <div class="form-group">
+        <label for="reason">Reason of Remove</label>
+        <select id="reason" name="reason">
+          <option value="Defected">Defected</option>
+          <option value="Scrap">Scrap</option>
+          <option value="required for R&D">Required for R&D</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="comments">Comments</label>
+        <textarea id="comments" name="comments"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Attach Image</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <br><br>
+        <input type="file" id="cameraInput" accept="image/*" capture="environment">
       </div>
       <div id="previewContainer"></div>
     </form>
@@ -118,12 +167,13 @@
       const removalDate = document.getElementById('removalDate');
       if (removalDate) removalDate.value = today;
 
-      const imageInput = document.getElementById('imageUpload');
+      const fileInput = document.getElementById('fileInput');
+      const cameraInput = document.getElementById('cameraInput');
       const previewContainer = document.getElementById('previewContainer');
       let uploadedImage = null;
 
-      imageInput.addEventListener('change', function () {
-        const file = this.files[0];
+      function handleImageUpload(input) {
+        const file = input.files[0];
         if (file) {
           const reader = new FileReader();
           reader.onload = function (e) {
@@ -132,10 +182,15 @@
             previewContainer.innerHTML = imgHTML;
           };
           reader.readAsDataURL(file);
-        } else {
-          previewContainer.innerHTML = '';
-          uploadedImage = null;
         }
+      }
+
+      fileInput.addEventListener('change', function () {
+        handleImageUpload(this);
+      });
+
+      cameraInput.addEventListener('change', function () {
+        handleImageUpload(this);
       });
 
       document.getElementById('savePdfBtn').addEventListener('click', function () {
